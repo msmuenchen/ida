@@ -262,6 +262,19 @@ class Instr_generic_data extends Instruction {
 		$this->asmfile->instructions[$this->index]=$inst;
 		$this->asmfile->resetRefArrays();
 	}
+	
+	//change the display format of a part
+	function changeFormat($partid,$format) {
+		log_msg("Trying to change format of part %d to %s in instruction id %d / cid %d",$partid,$format,$this->index,$this->codeIndex);
+		if(!isset($this->parts[$partid]))
+			err_out("Part %d does not exist in instruction id %d / cid %d",$part,$format,$this->index,$this->codeIndex);
+		$part=$this->parts[$partid];
+		if(sizeof($part["bytes"])>$this->width)
+			err_out("Can't change an oversized string to anything else, undefine the instruction!");
+		if(array_search($format,array("int","string","hex","oct","bin"))===false)
+			err_out("invalid format %s",$format);
+		$this->parts[$partid]["type"]=$format;
+	}
 }
 Instruction::registerInstruction("db","generic","Instr_generic_data");
 Instruction::registerInstruction("dw","generic","Instr_generic_data");

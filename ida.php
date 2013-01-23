@@ -97,10 +97,15 @@ switch($pass) {
 		log_msg("Using ASM file %s",$asmfile);
 		$asm=ASM::createFromFile($asmfile);
 		//scale up to word
-		$asm->codeInstructions[0]->upscale();
+		/*$asm->codeInstructions[0]->upscale();
 		$asm->codeInstructions[0]->upscale();
 		$asm->codeInstructions[2]->upscale();
-		$asm->codeInstructions[2]->mkarray(4);
+		$asm->codeInstructions[2]->mkarray(4);*/
+		$asm->codeInstructions[0]->changeFormat(0,"hex");
+		$asm->codeInstructions[2]->changeFormat(0,"bin");
+		$asm->codeInstructions[2]->changeFormat(2,"oct");
+		$asm->codeInstructions[3]->changeFormat(0,"string");
+		$asm->codeInstructions[5]->changeFormat(0,"int");
 		$asm->write($workdir.$finfo["filename"]."_mod.asm");
 		$asm->destroy();
 		unset($asm);
