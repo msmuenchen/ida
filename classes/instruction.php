@@ -54,6 +54,11 @@ abstract class Instruction {
 	}
 	//set the comment string
 	public function setComment($str) {
+		if(func_num_args()>1) {
+			$args=func_get_args();
+			$args[0]=$str;
+			$str=call_user_func_array("sprintf",$args);
+		}
 		$this->commentstr=$str;
 	}
 	//get the comment string
