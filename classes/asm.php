@@ -6,11 +6,11 @@ class ASM {
 	//All instructions (it is assumed that each line is one instruction)
 	public $instructions=array();
 	//All non-comment and non-blank instructions - entries are refs to entries of ASM->instructions
-	private $codeInstructions=array();
+	public $codeInstructions=array();
 	//For each byte, this array gives a ref to the instruction that creates it
-	private $fileInstructions=array();
+	public $fileInstructions=array();
 	//Meta-block instructions which get inserted in the IDA header block
-	private $metaInstructions=array();
+	public $metaInstructions=array();
 	//Array to store references to a location in a file
 	private $xrefsTo=array();
 	
