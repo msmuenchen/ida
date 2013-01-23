@@ -140,8 +140,7 @@ abstract class Instruction {
 		$inst=$found::fromASM($line,$endian);
 		$inst->setComment($comment);
 		if($infoblock!="") {
-			if(preg_match("@FPOS: '0x(.*)'@isU",$infoblock,$hit))
-				$inst->setFpos(hexdec($hit[1]));
+			//most likely this will be parsed in the future, too, outside from here.
 			if(preg_match("@RAMPOS: '0x(.*)'@isU",$infoblock,$hit))
 				$inst->setRpos(hexdec($hit[1]));
 		}
