@@ -1,0 +1,5 @@
+*.exe
+*.asm
+php_manual_chm/*
+*.pdf
+*.bin
