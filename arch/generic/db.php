@@ -275,6 +275,20 @@ class Instr_generic_data extends Instruction {
 			err_out("invalid format %s",$format);
 		$this->parts[$partid]["type"]=$format;
 	}
+	
+	//get the raw integer value of the specified part
+	function getRawValue($partid=0,$endian=0) {
+		if(!isset($this->parts[$partid]))
+			err_out("Part %d does not exist in instruction id %d / cid %d",$part,$this->index,$this->codeIndex);
+		$part=$this->parts[$partid];
+		switch($this->width) {
+			case 1: $unitname="BYTE"; break;
+			case 2: $unitname="WORD"; break;
+			case 4: $unitname="DWORD"; break;
+			case 8: $unitname="QWORD"; break;
+		}
+		return $unitname::fromArray($part["bytes"])->toInt($endian);
+	}
 }
 Instruction::registerInstruction("db","generic","Instr_generic_data");
 Instruction::registerInstruction("dw","generic","Instr_generic_data");
