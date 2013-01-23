@@ -148,7 +148,11 @@ class ASM {
 		$obj->setASMObj($this);
 		$obj->setIndex($index);
 		$this->instructions[$index]=$obj;
-		$this->codeInstructions[]=&$this->instructions[$index];
+		if(!$obj instanceof Instr_generic_comment) { //it's either code or comment
+			$codeindex=sizeof($this->codeInstructions);
+			$this->codeInstructions[$codeindex]=&$this->instructions[$index];
+			$obj->setCodeIndex($codeindex);
+		}
 		$numBytes=strlen($obj->getBytes());
 		$startpos=$obj->getFpos();
 		for($i=$startpos;$i<$startpos+$numBytes;$i++)
