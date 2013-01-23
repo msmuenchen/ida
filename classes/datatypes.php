@@ -9,19 +9,31 @@ abstract class DATAUNIT_MB {
 	//the bytes in the multibyte structure, big-endian order (0x11223344 will be 0=11 1=22 3=33 4=44)
 	protected $bytes=array();
 	
+	//store the real length of oversized strings
+	protected $oversize_length=-1;
+	
 	protected function __construct($bytes) {
 		$this->bytes=$bytes;
 	}
 	//populate and return an instance with the bytes. If shorter, pad with \0 at the end
-	public static function fromString($str,$endian=0) {
+	//when allowOversize is true, pad to multiples of $width...
+	public static function fromString($str,$endian=0,$allowOversize=false) {
 //		log_msg("Creating %d-wide multibyte from string '%s' (len: %d) in order %s",static::$width,str_sanitize($str),strlen($str),(($endian==1)?"big":"little"));
 		
+		if($allowOversize) {
+			$oversize=strlen($str);
+			$count=ceil(strlen($str)/static::$width)*static::$width;
+		} else {
+			$oversize=-1;
+			$count=static::$width;
+		}
+		
 		//Sanity check: length
-		if(strlen($str)<static::$width) {
-			$str=str_pad($str,static::$width,"\0");
-//			log_msg("Padded string to %d bytes, now is '%s'",static::$width,str_sanitize($str));
-		} elseif(strlen($str)>static::$width)
-			err_out("Tried to initialize %d-wide multibyte with %d-wide string '%s'",static::$width,strlen($str),str_sanitize($str));
+		if(strlen($str)<$count) {
+			$str=str_pad($str,$count,"\0");
+//			log_msg("Padded string to %d bytes, now is '%s'",$count,str_sanitize($str));
+		} elseif(strlen($str)>$count)
+//			err_out("Tried to initialize %d-wide multibyte with %d-wide string '%s'",static::$width,strlen($str),str_sanitize($str));
 		
 		//Endianness swap
 		if($endian==0) {
@@ -30,36 +42,52 @@ abstract class DATAUNIT_MB {
 		}
 		
 		$bytes=array();
-		for($i=0;$i<static::$width;$i++) {
+		for($i=0;$i<$count;$i++) {
 			$bytes[$i]=ord(substr($str,$i,1));
 		}
-		return static::getInst($bytes);
+		$ret=static::getInst($bytes);
+		if($oversize!=-1)
+			$ret->oversize_length=$oversize;
+		return $ret;
 	}
-	public function toRawString($endian=0) {
+	//set useAllBytes=true when forcing longer strings and set $assumeOversizeLength to the real length when
+	//restoring the object
+	public function toRawString($endian=0,$useAllBytes=false,$assumeOversizeLength=-1) {
 		if($endian==0) {
 //			log_msg("Reversed string order for output!");
 			$bytes=array_reverse($this->bytes);
 		} else {
 			$bytes=$this->bytes;
 		}
+		if($useAllBytes)
+			$count=sizeof($this->bytes);
+		else
+			$count=static::$width;
 		
 		$dstr="";	//assembled string for debug-display
-		for($i=0;$i<static::$width;$i++)
+		for($i=0;$i<$count;$i++)
 			$dstr.=chr($this->bytes[$i]);
 			
 		$str="";	//assembled string for return
-		for($i=0;$i<static::$width;$i++) {
+		for($i=0;$i<$count;$i++) {
 			// Only print harmless characters, but avoid expensive regexes, we're already crappy enough in performance!
 			if($bytes[$i]<0x30 || $bytes[$i]>0x7A || ($bytes[$i]>0x39 && $bytes[$i]<0x41) || $bytes[$i]==0x5C || $bytes[$i]==0x60)
 				$str.=sprintf("\\%02X",$bytes[$i]);
 			else
 				$str.=chr($bytes[$i]);
 		}
+		
+		//trim padded nullbytes when a oversized string was loaded
+		if($assumeOversizeLength!=-1)
+			$this->oversize_length=$assumeOversizeLength;
+		if($this->oversize_length!=-1)
+			$str=substr($str,0,$this->oversize_length);
+			
 //		log_msg("Requested %d-wide string '%s' (BE) in order %s",static::$width,str_sanitize($dstr),(($endian==1)?"big":"little"));
 		return $str;
 	}
-	public function toString($endian) {
-		return "\"".$this->toRawString($endian)."\"";
+	public function toString($endian,$useAllBytes=false,$assumeOversizeLength=-1) {
+		return "\"".$this->toRawString($endian,$useAllBytes,$assumeOversizeLength)."\"";
 	}
 	
 	public static function fromInt($str,$endian=0) {
@@ -172,7 +200,8 @@ abstract class DATAUNIT_MB {
 			$bytes=$this->bytes;
 		return $bytes;
 	}
-	//supply a big-endian array of bytes
+	//supply a big-endian array of bytes.
+	//NO WIDTH CHECKING IS APPLIED. USE WITH CAUTION.
 	public static function fromArray($bytes) {
 		return static::getInst($bytes);
 	}
