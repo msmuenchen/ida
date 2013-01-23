@@ -165,4 +165,20 @@ abstract class Instruction {
 	public function getCodeIndex() {
 		return $this->codeIndex;
 	}
+	
+	//replace the current instruction with "db" instructions (undefine). Comments get simply wiped
+	public function undefine() {
+		log_msg("Undefining instruction %d (asm '%s', cid %d), length %d",$this->index,$this->getASM(),$this->codeIndex,$this->getByteLength());
+		$bytes=$this->getRawBytes();
+		$index=$this->index;
+		unset($this->asmfile->instructions[$index]);
+		if(sizeof($bytes)==0)
+			return;
+		$instructions=array();
+		foreach($bytes as $byte) {
+			$instructions[]=new Instr_generic_data(array($byte),array(array("data"=>"","bytes"=>array($byte),"type"=>"hex")),1,$this->endian);
+		}
+		$this->asmfile->instructions=array_insert($this->asmfile->instructions,$index,$instructions);
+		$this->asmfile->resetRefArrays();
+	}
 }
