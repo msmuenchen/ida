@@ -26,9 +26,11 @@ class FileType_PE_EXE extends FileType {
 									  0x1a8=>	"IMAGE_FILE_MACHINE_SH5",
 									  0x1c2=>	"IMAGE_FILE_MACHINE_THUMB",
 									  0x169=>	"IMAGE_FILE_MACHINE_WCEMIPSV2");
-									  
+	
+	//test if this is a valid PE EXE
+	//Check for the MZ signature and the PE signature at the given offset
 	public static function test($asm) {
-		//COFF signature: MZ as first two bytes of file
+		//MZ signature: MZ as first two bytes of file
 		$sig=$asm->getRawBytes(0,2);
 		if(chr($sig[0])!="M" || chr($sig[1])!="Z")
 			return false;
@@ -44,11 +46,53 @@ class FileType_PE_EXE extends FileType {
 			return false;
 		
 		return true;
-		$pe_header_raw=$asm->getRawBytes($pe_offset+4,20);
-		$machine=le_to_int($pe_header_raw[0],$pe_header_raw[1]);
-		if(!isset(self::$pe_machines[$machine]))
-			$machine=0; //unknown
-		$pe_header["Machine"]=self::$pe_machines[$machine];
+	}
+	public function readSections() {
+	}
+	
+	//parse what we can get out of the asm file and format the structures
+	public function populateASM() {
+		//this is the MZ sig
+		$this->asmfile->getInstructionFromFileOffset(0)->upscale();
+		$this->asmfile->getInstructionFromFileOffset(0)->changeFormat(0,"string");
+		
+		//this is the PE header offset, DWORD
+		$this->asmfile->getInstructionFromFileOffset(0x3C)->upscale();
+		$this->asmfile->getInstructionFromFileOffset(0x3C)->upscale();
+		$this->asmfile->getInstructionFromFileOffset(0x3C)->changeFormat(0,"hex");
+		$pe_sig=$this->asmfile->getInstructionFromFileOffset(0x3C)->getRawValue(0);
+		log_msg("PE sig at 0x%08X",$pe_sig);
+		
+		//PE header
+		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->upscale();
+		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->upscale();
+//		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->changeFormat(0,"string");
+		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->setComment("pe.magic");
+		$pe_base=$pe_sig+4;
+		
+		//PE struct
+		//Machine, WORD
+		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->upscale();
+//		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->changeFormat(0,"hex");
+		$pedata["machine"]=$this->asmfile->getInstructionFromFileOffset($pe_base+0)->getRawValue(0);
+		if(!isset(self::$pe_machines[$pedata["machine"]]))
+			$pedata["machine"]=0; //unknown
+		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->setComment("pe.machine = %x (%s)",$pedata["machine"],self::$pe_machines[$pedata["machine"]]);
+		//NumberOfSections, WORD
+		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->upscale();
+//		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->changeFormat(0,"hex");
+		$val=$this->asmfile->getInstructionFromFileOffset($pe_base+2)->getRawValue(0);
+		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->setComment("pe.numberofsections = %d",$val);
+		//TimeDateStamp, DWORD
+		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->upscale();
+		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->upscale();
+//		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->changeFormat(0,"int");
+		$val=$this->asmfile->getInstructionFromFileOffset($pe_base+4)->getRawValue(0);
+		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->setComment("pe.timedatestamp = %d",$val);
+		
+		
+		/*
+		
 		$pe_header["NumberOfSections"]=le_to_int($pe_header_raw[2],$pe_header_raw[3]);
 		//todo: fix time stamp
 		$pe_header["TimeDateStamp"]=le_to_int($pe_header_raw[4],$pe_header_raw[5],$pe_header_raw[6],$pe_header_raw[7]);
@@ -58,11 +102,7 @@ class FileType_PE_EXE extends FileType {
 		$pe_header["SizeOfOptionalHeader"]=le_to_int($pe_header_raw[16],$pe_header_raw[17]);
 		$pe_header["Characteristics"]=le_to_int($pe_header_raw[18],$pe_header_raw[19]);
 		print_r($pe_header);
-		return true;
-	}
-	public function readSections($asm) {
-	}
-	public function populateASM($asm) {
+		return true;*/
 	}
 }
 FileType::registerFileType("PE_EXE","FileType_PE_EXE");
