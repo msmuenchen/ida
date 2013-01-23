@@ -74,7 +74,7 @@ switch($pass) {
 		require("pass_2.php");
 	break;
 	case 4:
-		log_msg("Testing read->write");
+		log_msg("Testing read->write identity");
 		$asmfile=$workdir.$finfo["filename"].".asm";
 		log_msg("Using ASM file %s",$asmfile);
 		$asm=ASM::createFromFile($asmfile);
@@ -85,66 +85,14 @@ switch($pass) {
 	case 5:
 		log_msg("Compile");
 		$asmfile=$workdir.$finfo["filename"].".asm";
-		log_msg("Using ASM file %s",$asmfile);
+		$outfile=$workdir.$finfo["filename"]."_compiled.bin";
+		log_msg("Using ASM file %s and outfile %s",$asmfile,$outfile);
 		$asm=ASM::createFromFile($asmfile);
-		$asm->compile($workdir.$finfo["filename"]."_compiled.bin");
+		$asm->compile($outfile);
+		$md5_outfile=md5_file($outfile);
+		log_msg("MD5 of original file was %s, new file is %s",$asm->bin_md5,$md5_outfile);
 		$asm->destroy();
 		unset($asm);
-	break;
-	case 97:
-		log_msg("Doing tests");
-		$asmfile=$workdir.$finfo["filename"].".asm";
-		log_msg("Using ASM file %s",$asmfile);
-		$asm=ASM::createFromFile($asmfile);
-		//scale up to word
-		/*$asm->codeInstructions[0]->upscale();
-		$asm->codeInstructions[0]->upscale();
-		$asm->codeInstructions[2]->upscale();
-		$asm->codeInstructions[2]->mkarray(4);*/
-		$asm->codeInstructions[0]->changeFormat(0,"hex");
-		$asm->codeInstructions[2]->changeFormat(0,"bin");
-		$asm->codeInstructions[2]->changeFormat(2,"oct");
-		$asm->codeInstructions[3]->changeFormat(0,"string");
-		$asm->codeInstructions[5]->changeFormat(0,"int");
-		$asm->write($workdir.$finfo["filename"]."_mod.asm");
-		$asm->destroy();
-		unset($asm);
-	break;
-	case 98:
-		$w=DWORD::fromString("ABCD",1);
-		log_msg("Return string LE: %s",str_sanitize($w->toRawString(0)));
-		log_msg("Return string BE: %s",str_sanitize($w->toRawString(1)));
-		log_msg("Return int LE: %10s %8x",$w->toInt(0),$w->toInt(0));
-		log_msg("Return int BE: %10s %8x",$w->toInt(1),$w->toInt(1));
-		log_msg("Return oct LE: %s",$w->toOct(0));
-		log_msg("Return oct BE: %s",$w->toOct(1));
-		log_msg("Return hex LE: %s",$w->toHex(0));
-		log_msg("Return hex BE: %s",$w->toHex(1));
-		log_msg("Return bin LE: %s",$w->toBin(0));
-		log_msg("Return bin BE: %s",$w->toBin(1));
-	break;
-	case 99:
-		log_msg("Testmode");
-		$b=BYTE::fromString("s");
-		log_msg($b->toString());
-		log_msg($b->toOctal());
-		log_msg($b->toHex());
-		log_msg($b->toBin());
-		$b=BYTE::fromOctal("77o");
-		log_msg($b->toString());
-		log_msg($b->toOctal());
-		log_msg($b->toHex());
-		log_msg($b->toBin());
-		$b=BYTE::fromHex("62h");
-		log_msg($b->toString());
-		log_msg($b->toOctal());
-		log_msg($b->toHex());
-		log_msg($b->toBin());
-		$b=BYTE::fromBin("0111001b");
-		log_msg($b->toString());
-		log_msg($b->toOctal());
-		log_msg($b->toHex());
-		log_msg($b->toBin());
 	break;
 	default:
 		err_out("Invalid pass %d",$pass);
