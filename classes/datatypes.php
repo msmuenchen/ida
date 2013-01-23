@@ -193,7 +193,7 @@ abstract class DATAUNIT_MB {
 		return decbin($this->toInt($endian));
 	}
 	public function toBin($endian) {
-		return $this->toRawBin($endian)."h";
+		return $this->toRawBin($endian)."b";
 	}
 	public function toArray($endian=0) {
 		if($endian==0)
