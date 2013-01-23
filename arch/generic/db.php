@@ -184,9 +184,10 @@ class Instr_generic_data extends Instruction {
 			case 2: $newwidth=4; break;
 			default: err_out("can't scale a DWORD up, only down using undefine!");
 		}
-		log_msg("Scaling up instruction id %d '%s', code id %d from %d to %d bytes",$this->index,$this->getASM(),$this->codeIndex,$this->width,$newwidth);
-		$delta=$newwidth-$this->width; //this many bytes are missing
-		$curWidth=$this->width;
+//		log_msg("Scaling up instruction id %d '%s', code id %d from %d to %d bytes",$this->index,$this->getASM(),$this->codeIndex,$this->getByteLength(),$newwidth);
+		$delta=$newwidth-$this->getByteLength(); //this many bytes are missing
+		if($delta<=0)
+			err_out("Instruction id %d '%s' already is longer or long enough, undefine first!",$this->index,$this->getASM());
 		$elements=array($this->index);
 //		log_msg("Need %d bytes, looking at CI keys %d to %d",$delta,$this->codeIndex+1,$this->codeIndex+$delta);
 		//A code instruction has at least one byte... therefore, if we want to enhance $delta bytes, just look at currentIndex+1 (next instruction)+ $delta instructions!
