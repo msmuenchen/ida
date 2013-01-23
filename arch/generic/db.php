@@ -14,9 +14,42 @@ class Instr_generic_data extends Instruction {
 		$this->opcode=$vals;
 		$this->parts=$parts;
 		$this->width=$width;
+		$bytestr="";
+		foreach($vals as $b) {
+			$bytestr.=" ".dechex($b);
+		}
+		$partstr="";
+		foreach($parts as $i=>$part) {
+			$pbytestr="";
+			foreach($part["bytes"] as $b) {
+				$pbytestr.=" ".dechex($b);
+			}
+			$partstr.=sprintf("%d: %s, data '%s', bytes: %s\n",$i,$part["type"],str_sanitize($part["data"]),$pbytestr);
+		}
+		log_msg("Constructed %d-width byte in endian %s, raw bytes are %s, parts are:\n%s\n",$width,(($endian==1)?"big":"little"),trim($bytestr),trim($partstr));
 	}
+	
 	public function getASM() {
-		
+		switch($this->width) {
+			case 1: $inst="db "; $unitname="BYTE"; break;
+			case 2: $inst="dw "; $unitname="WORD"; break;
+			case 4: $inst="dd "; $unitname="DWORD"; break;
+			case 8: $inst="dq "; $unitname="QWORD"; break;
+			default: $inst="INVALID {$this->width} "; break;
+		}
+		$strarray=array();
+		foreach($this->parts as $p) {
+			$obj=$unitname::fromArray($p["bytes"]); //bytes are supplied always big endian
+			switch($p["type"]) {
+				case "oct": $strarray[]=$obj->toOct($this->endian); break;
+				case "bin": $strarray[]=$obj->toBin($this->endian); break;
+				case "hex": $strarray[]=$obj->toHex($this->endian); break;
+				case "int": $strarray[]=$obj->toInt($this->endian); break;
+				case "string": $strarray[]=$obj->toString(1); break;
+			}
+		}
+		$str=$inst.implode(",",$strarray);
+		return $str;
 	}
 	
 	//construct a dX object from the asm instruction, using the file endianness to read the byte order
@@ -136,8 +169,12 @@ class Instr_generic_data extends Instruction {
 			$parts[$idx]=$part;
 		}
 		
-		print_r($parts);
-		print_r($allbytes);
+		return new self($allbytes,$parts,$width,$endian);
+	}
+	
+	//create a db instruction with the value being the integer value of the byte
+	public static function fromBinary($byte) {
+		return new self(array($byte),array(0=>array("type"=>"int","bytes"=>array($byte),"data"=>strval($byte))),1,0);
 	}
 }
 Instruction::registerInstruction("db","generic","Instr_generic_data");
