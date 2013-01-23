@@ -23,5 +23,6 @@ for($pos=0;$pos<$insize;$pos++) {
 	$asm->appendInstruction($inst);
 }
 
+$asm->resetRefArrays();
 $asm->write();
 unset($asm);
