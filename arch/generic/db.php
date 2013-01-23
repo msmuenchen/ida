@@ -176,6 +176,52 @@ class Instr_generic_data extends Instruction {
 	public static function fromBinary($byte) {
 		return new self(array($byte),array(0=>array("type"=>"int","bytes"=>array($byte),"data"=>strval($byte))),1,0);
 	}
+	
+	//increase width of instruction
+	public function upscale() {
+		switch($this->width) {
+			case 1: $newwidth=2; break;
+			case 2: $newwidth=4; break;
+			default: err_out("can't scale a DWORD up, only down using undefine!");
+		}
+		log_msg("Scaling up instruction id %d '%s', code id %d from %d to %d bytes",$this->index,$this->getASM(),$this->codeIndex,$this->width,$newwidth);
+		$delta=$newwidth-$this->width; //this many bytes are missing
+		$curWidth=$this->width;
+		$elements=array($this->index);
+//		log_msg("Need %d bytes, looking at CI keys %d to %d",$delta,$this->codeIndex+1,$this->codeIndex+$delta);
+		//A code instruction has at least one byte... therefore, if we want to enhance $delta bytes, just look at currentIndex+1 (next instruction)+ $delta instructions!
+		//TODO: Check for XREFs and structure memberships.
+		for($i=$this->codeIndex+1;$i<=$this->codeIndex+$delta+1;$i++) {
+			$inst=$this->asmfile->codeInstructions[$i];
+//			log_msg("Checking instruction %d (asm %s)",$i,$inst->getASM());
+			if(!$inst instanceof Instr_generic_data)
+				err_out("The upscale would overwrite a non-data instruction '%s', undefine it first!",$inst->getASM());
+			$ilen=$inst->getByteLength();
+			if($ilen>$delta)
+				err_out("Only %d bytes needed, however following instruction is %d bytes long and prevents upscaling. Undefine offending instruction '%s' first!",$delta,$ilen,$inst->getASM());
+			$delta-=$ilen;
+//			log_msg("Instruction %d is %d bytes wide, now needing %d bytes",$inst->getIndex(),$ilen,$delta);
+			$elements[]=$inst->getIndex();
+			if($delta==0)
+				break;
+		}
+		
+		//get the bytes of the instructions and undefine them from the main array
+		log_msg("Instructions included in this upscaling:\n");
+		$allbytes=array();
+		foreach($elements as $e) {
+			$inst=$this->asmfile->instructions[$e];
+			$bytes=$inst->getRawBytes();
+			$allbytes=array_merge($allbytes,$bytes);
+			log_msg("%5d: %s",$e,$inst->getASM());
+			unset($this->asmfile->instructions[$e]);
+		}
+		
+		$inst=new Instr_generic_data($allbytes,array(array("data"=>"","bytes"=>$allbytes,"type"=>"hex")),$newwidth,$this->endian);
+		log_msg("Inserting new instruction %s at position %d",$inst->getASM(),$this->index);
+		$this->asmfile->instructions[$this->index]=$inst;
+		$this->asmfile->resetRefArrays();
+	}
 }
 Instruction::registerInstruction("db","generic","Instr_generic_data");
 Instruction::registerInstruction("dw","generic","Instr_generic_data");
