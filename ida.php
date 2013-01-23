@@ -85,7 +85,7 @@ switch($pass) {
 	case 5:
 		log_msg("Compile");
 		$origfile=$workdir.$finfo["filename"].".exe";
-		$asmfile=$workdir.$finfo["filename"].".asm";
+		$asmfile=$workdir.$finfo["filename"]."_mod.asm";
 		$outfile=$workdir.$finfo["filename"]."_compiled.bin";
 		$nasmfile=$workdir.$finfo["filename"]."_nasm.bin";
 		log_msg("Using ASM file %s, building into IDA %s, NASM %s and original %s",$asmfile,$outfile,$nasmfile,$origfile);
