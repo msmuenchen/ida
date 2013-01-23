@@ -74,7 +74,7 @@ class Instr_generic_data extends Instruction {
 		$pos=0;
 		$mode=0;
 		//tokenize into parts
-		while($data!="") {
+		while(strlen($data)!=0) {
 			$char=substr($data,0,1);
 			$data=substr($data,1);
 //			log_msg("Parsing character %s from position %d, element is %d and mode is %d",$char,$pos,$el,$mode);

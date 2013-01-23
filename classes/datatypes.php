@@ -101,7 +101,7 @@ abstract class DATAUNIT_MB {
 			err_out("'%s' is not a valid hex string",str_sanitize($str));
 		
 		//remove unneeded 0s from the beginning
-		while(substr($val,0,1)=="0") {
+		while(substr($val,0,1)==="0") {
 			$val=substr($val,1);
 		}
 		
