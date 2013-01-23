@@ -20,7 +20,6 @@ for($pos=0;$pos<$insize;$pos++) {
 	$byte=ord(fgetc($in));
 	//create DB instruction
 	$inst=Instr_generic_data::fromBinary($byte);
-	$inst->setFpos($pos);
 	$asm->appendInstruction($inst);
 }
 
