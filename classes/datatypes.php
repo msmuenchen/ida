@@ -33,7 +33,7 @@ abstract class DATAUNIT_MB {
 		for($i=0;$i<static::$width;$i++) {
 			$bytes[$i]=ord(substr($str,$i,1));
 		}
-		return static::getInst($bytes,$endian);
+		return static::getInst($bytes);
 	}
 	public function toRawString($endian=0) {
 		if($endian==0) {
@@ -123,7 +123,7 @@ abstract class DATAUNIT_MB {
 //			log_msg("Reversed string order at creation!");
 			$bytes=array_reverse($bytes);
 		}
-		return static::getInst($bytes,$endian);
+		return static::getInst($bytes);
 	}
 	public function toRawHex($endian) {
 		return dechex($this->toInt($endian));
