@@ -26,7 +26,7 @@ class Instr_generic_data extends Instruction {
 			}
 			$partstr.=sprintf("%d: %s, data '%s', bytes: %s\n",$i,$part["type"],str_sanitize($part["data"]),$pbytestr);
 		}
-		log_msg("Constructed %d-width byte in endian %s, raw bytes are %s, parts are:\n%s\n",$width,(($endian==1)?"big":"little"),trim($bytestr),trim($partstr));
+//		log_msg("Constructed %d-width byte in endian %s, raw bytes are %s, parts are:\n%s\n",$width,(($endian==1)?"big":"little"),trim($bytestr),trim($partstr));
 	}
 	
 	public function getASM() {
@@ -67,7 +67,7 @@ class Instr_generic_data extends Instruction {
 			case "d": $width=4; $unitname="DWORD"; break;
 			default: err_out("Unknown width specifier %s for data instruction",$width);
 		}
-		log_msg("Parsing data '%s', width is %d",$data,$width);
+//		log_msg("Parsing data '%s', width is %d",$data,$width);
 		
 		$parts=array(0=>array("type"=>"","data"=>""));
 		$el=0;
