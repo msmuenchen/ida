@@ -73,6 +73,15 @@ switch($pass) {
 		log_msg("Determining file type");
 		require("pass_2.php");
 	break;
+	case 4:
+		log_msg("Testing read->write");
+		$asmfile=$workdir.$finfo["filename"].".asm";
+		log_msg("Using ASM file %s",$asmfile);
+		$asm=ASM::createFromFile($asmfile);
+		$asm->write();
+		$asm->destroy();
+		unset($asm);
+	break;
 	case 97:
 		$a=array(0,1,2,3,4,5,6,7,8);
 		$b=array(11,12,13,14);
