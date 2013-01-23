@@ -100,6 +100,7 @@ switch($pass) {
 		$asm->codeInstructions[0]->upscale();
 		$asm->codeInstructions[0]->upscale();
 		$asm->codeInstructions[2]->upscale();
+		$asm->codeInstructions[2]->mkarray(4);
 		$asm->write($workdir.$finfo["filename"]."_mod.asm");
 		$asm->destroy();
 		unset($asm);

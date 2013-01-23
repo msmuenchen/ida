@@ -223,6 +223,40 @@ class Instr_generic_data extends Instruction {
 		$this->asmfile->instructions[$this->index]=$inst;
 		$this->asmfile->resetRefArrays();
 	}
+	
+	//join this instruction and $size-1 of same width into array
+	public function mkarray($size) {
+		log_msg("Trying to put instruction id %d / cid %d ('%s') and %d others into an array of size %d",$this->index,$this->codeIndex,$this->getASM(),$size-1,$size);
+		$elements=array();
+		for($i=$this->codeIndex;$i<$this->codeIndex+$size;$i++) {
+			$inst=$this->asmfile->codeInstructions[$i];
+//			log_msg("Checking instruction %d (asm %s)",$i,$inst->getASM());
+			if(!$inst instanceof Instr_generic_data)
+				err_out("The array would overwrite a non-data instruction '%s', undefine it first!",$inst->getASM());
+			if($inst->width!=$this->width)
+				err_out("The element '%s' is of another width, undefine or scale it first!",$inst->getASM());
+			$elements[]=$inst->getIndex();
+		}
+		
+		//get the bytes of the instructions and undefine them from the main array
+//		log_msg("Instructions included in this array:\n");
+		$allbytes=array();
+		$allparts=array();
+		foreach($elements as $e) {
+			$inst=$this->asmfile->instructions[$e];
+			$bytes=$inst->getRawBytes();
+			$parts=$inst->parts;
+			$allbytes=array_merge($allbytes,$bytes);
+			$allparts=array_merge($allparts,$parts);
+//			log_msg("%5d: %s",$e,$inst->getASM());
+			unset($this->asmfile->instructions[$e]);
+		}
+		
+		$inst=new Instr_generic_data($allbytes,$allparts,$this->width,$this->endian);
+//		log_msg("Inserting new instruction %s at position %d",$inst->getASM(),$this->index);
+		$this->asmfile->instructions[$this->index]=$inst;
+		$this->asmfile->resetRefArrays();
+	}
 }
 Instruction::registerInstruction("db","generic","Instr_generic_data");
 Instruction::registerInstruction("dw","generic","Instr_generic_data");
