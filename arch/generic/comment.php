@@ -23,7 +23,7 @@ class Instr_generic_comment extends Instruction {
 	}
 	//Override Instruction's toString
 	public function toString() {
-		return ";".$this->msg;
+		return sprintf(";%-42s || ID %03d CID %03d",$this->msg,$this->index,$this->codeIndex);
 	}
 }
 Instruction::registerInstruction(";","generic","Instr_generic_comment");
