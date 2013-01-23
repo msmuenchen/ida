@@ -179,7 +179,7 @@ class Instr_generic_data extends Instruction {
 	
 	//create a db instruction with the value being the integer value of the byte
 	public static function fromBinary($byte) {
-		return new self(array($byte),array(0=>array("type"=>"int","bytes"=>array($byte),"data"=>strval($byte))),1,0);
+		return new self(array($byte),array(0=>array("type"=>"hex","bytes"=>array($byte),"data"=>strval($byte))),1,0);
 	}
 	
 	//increase width of instruction

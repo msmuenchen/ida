@@ -156,7 +156,7 @@ abstract class DATAUNIT_MB {
 		return static::getInst($bytes);
 	}
 	public function toRawHex($endian) {
-		return dechex($this->toInt($endian));
+		return "0".dechex($this->toInt($endian));
 	}
 	public function toHex($endian) {
 		return $this->toRawHex($endian)."h";
