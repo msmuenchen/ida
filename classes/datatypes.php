@@ -59,9 +59,15 @@ abstract class DATAUNIT_MB {
 		} else {
 			$bytes=$this->bytes;
 		}
-		if($useAllBytes)
+		
+		if($useAllBytes) {
 			$count=sizeof($this->bytes);
-		else
+			//trim padded nullbytes when a oversized string was loaded
+			if($assumeOversizeLength!=-1)
+				$this->oversize_length=$assumeOversizeLength;
+			if($this->oversize_length!=-1)
+				$count=$this->oversize_length;
+		} else
 			$count=static::$width;
 		
 		$dstr="";	//assembled string for debug-display
@@ -71,18 +77,14 @@ abstract class DATAUNIT_MB {
 		$str="";	//assembled string for return
 		for($i=0;$i<$count;$i++) {
 			// Only print harmless characters, but avoid expensive regexes, we're already crappy enough in performance!
-			if($bytes[$i]<0x30 || $bytes[$i]>0x7A || ($bytes[$i]>0x39 && $bytes[$i]<0x41) || $bytes[$i]==0x5C || $bytes[$i]==0x60)
-				$str.=sprintf("\\%02X",$bytes[$i]);
+			if(($bytes[$i]>0x0 && $bytes[$i]<0x30) || $bytes[$i]>0x7A || ($bytes[$i]>0x39 && $bytes[$i]<0x41) || $bytes[$i]==0x5C || $bytes[$i]==0x60)
+				$str.=sprintf("\\x%02X",$bytes[$i]);
+			elseif($bytes[$i]==0x0)
+				$str.="\\0";
 			else
 				$str.=chr($bytes[$i]);
 		}
 		
-		//trim padded nullbytes when a oversized string was loaded
-		if($assumeOversizeLength!=-1)
-			$this->oversize_length=$assumeOversizeLength;
-		if($this->oversize_length!=-1)
-			$str=substr($str,0,$this->oversize_length);
-			
 //		log_msg("Requested %d-wide string '%s' (BE) in order %s",static::$width,str_sanitize($dstr),(($endian==1)?"big":"little"));
 		return $str;
 	}
