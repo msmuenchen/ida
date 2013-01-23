@@ -45,7 +45,12 @@ class Instr_generic_data extends Instruction {
 				case "bin": $strarray[]=$obj->toBin($this->endian); break;
 				case "hex": $strarray[]=$obj->toHex($this->endian); break;
 				case "int": $strarray[]=$obj->toInt($this->endian); break;
-				case "string": $strarray[]=$obj->toString(1,true,$p["act_len"]); break;
+				case "string":
+					if(isset($p["act_len"]))
+						$strarray[]=$obj->toString(1,true,$p["act_len"]);
+					else
+						$strarray[]=$obj->toString(1);
+					break;
 			}
 		}
 		$str=$inst.implode(",",$strarray);
