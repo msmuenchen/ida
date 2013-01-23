@@ -132,6 +132,7 @@ class ASM {
 			$lines++;
 //			if($lines>5) break;
 		}
+		$this->resetRefArrays();
 		fclose($in);
 	}
 	
@@ -144,19 +145,35 @@ class ASM {
 	
 	//append a code instruction to the end
 	public function appendInstruction($obj) {
-		$index=sizeof($this->instructions);
-		$obj->setASMObj($this);
-		$obj->setIndex($index);
-		$this->instructions[$index]=$obj;
-		if(!$obj instanceof Instr_generic_comment) { //it's either code or comment
+		$this->instructions[]=$obj;
+	}
+	
+	//(Re)initialize objects and refarrays
+	//call this after modifying the instructions array
+	public function resetRefArrays() {
+		$fpos=0;
+		$this->codeInstructions=array();
+		$this->fileInstructions=array();
+		ksort($this->instructions);	//sort by key order; modifying elements will shift the element to the end and confuse foreach
+		$this->instructions=array_merge($this->instructions); //remove "holes" due to removed elements
+		foreach($this->instructions as $index=>$obj) {
+//			log_msg("Processing index %d, asm is %s",$index,$obj->getASM());
+			$obj->setIndex($index);
+			$obj->setASMObj($this);
+			if($obj instanceof Instr_generic_comment) //comments don't end up in the ref-arrays
+				continue;
 			$codeindex=sizeof($this->codeInstructions);
 			$this->codeInstructions[$codeindex]=&$this->instructions[$index];
 			$obj->setCodeIndex($codeindex);
+			
+			$obj->setFpos($fpos);
+			$numBytes=strlen($obj->getBytes());
+			for($i=$fpos;$i<$fpos+$numBytes;$i++)
+				$this->fileInstructions[$i]=&$this->instructions[$index];
+			$fpos+=$numBytes;
 		}
-		$numBytes=strlen($obj->getBytes());
-		$startpos=$obj->getFpos();
-		for($i=$startpos;$i<$startpos+$numBytes;$i++)
-			$this->fileInstructions[$i]=&$this->instructions[$index];
+//		foreach($this->codeInstructions as $index=>$obj)
+//			log_msg("Code instruction %d: %s",$index,$obj->getASM());
 	}
 	
 	//write the machine code in the file $target
@@ -199,6 +216,10 @@ class ASM {
 	
 	//destroy all the Instruction objects to free memory
 	public function destroy() {
+		foreach($this->codeInstructions as $k=>$v)
+			unset($this->codeInstructions[$k]);
+		foreach($this->fileInstructions as $k=>$v)
+			unset($this->fileInstructions[$k]);
 		foreach($this->instructions as $k=>$v)
 			unset($this->instructions[$k]);
 	}
@@ -206,5 +227,10 @@ class ASM {
 	//get the endianness
 	public function getEndian() {
 		return $this->endian;
+	}
+	
+	//get a specific instruction
+	public function getInstruction($idx) {
+		return $this->instructions[$idx];
 	}
 }
