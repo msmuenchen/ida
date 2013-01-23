@@ -213,18 +213,18 @@ class Instr_generic_data extends Instruction {
 		}
 		
 		//get the bytes of the instructions and undefine them from the main array
-		log_msg("Instructions included in this upscaling:\n");
+//		log_msg("Instructions included in this upscaling:\n");
 		$allbytes=array();
 		foreach($elements as $e) {
 			$inst=$this->asmfile->instructions[$e];
 			$bytes=$inst->getRawBytes();
 			$allbytes=array_merge($allbytes,$bytes);
-			log_msg("%5d: %s",$e,$inst->getASM());
+//			log_msg("%5d: %s",$e,$inst->getASM());
 			unset($this->asmfile->instructions[$e]);
 		}
 		
 		$inst=new Instr_generic_data($allbytes,array(array("data"=>"","bytes"=>$allbytes,"type"=>"hex")),$newwidth,$this->endian);
-		log_msg("Inserting new instruction %s at position %d",$inst->getASM(),$this->index);
+//		log_msg("Inserting new instruction %s at position %d",$inst->getASM(),$this->index);
 		$this->asmfile->instructions[$this->index]=$inst;
 		$this->asmfile->resetRefArrays();
 	}
@@ -265,7 +265,7 @@ class Instr_generic_data extends Instruction {
 	
 	//change the display format of a part
 	function changeFormat($partid,$format) {
-		log_msg("Trying to change format of part %d to %s in instruction id %d / cid %d",$partid,$format,$this->index,$this->codeIndex);
+//		log_msg("Trying to change format of part %d to %s in instruction id %d / cid %d",$partid,$format,$this->index,$this->codeIndex);
 		if(!isset($this->parts[$partid]))
 			err_out("Part %d does not exist in instruction id %d / cid %d",$part,$format,$this->index,$this->codeIndex);
 		$part=$this->parts[$partid];
