@@ -6,9 +6,9 @@ class FileType_ELF extends FileType {
 	public static function test($asm) {
 		
 	}
-	public function readSections($asm) {
+	public function readSections() {
 	}
-	public function populateASM($asm) {
+	public function populateASM() {
 	}
 }
 FileType::registerFileType("ELF","FileType_ELF");

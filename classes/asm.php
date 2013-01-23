@@ -204,7 +204,7 @@ class ASM {
 	//set the file type handler
 	public function setFileType($type) {
 		$this->type=$type;
-		$this->ftInst=new $type;
+		$this->ftInst=new $type($this);
 	}
 	
 	//instantiate a ftype object and let it write the information into the headerblock

@@ -7,9 +7,9 @@ class FileType_FLAT extends FileType {
 	public static function test($asm) {
 		return true;
 	}
-	public function readSections($asm) {
+	public function readSections() {
 	}
-	public function populateASM($asm) {
+	public function populateASM() {
 	}
 }
 FileType::registerFileType("XXX_FLAT","FileType_FLAT");
