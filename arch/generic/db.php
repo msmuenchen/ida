@@ -45,7 +45,7 @@ class Instr_generic_data extends Instruction {
 				case "bin": $strarray[]=$obj->toBin($this->endian); break;
 				case "hex": $strarray[]=$obj->toHex($this->endian); break;
 				case "int": $strarray[]=$obj->toInt($this->endian); break;
-				case "string": $strarray[]=$obj->toString(1); break;
+				case "string": $strarray[]=$obj->toString(1,true,$p["act_len"]); break;
 			}
 		}
 		$str=$inst.implode(",",$strarray);
@@ -161,7 +161,7 @@ class Instr_generic_data extends Instruction {
 				case "bin": $part["obj"]=$unitname::fromBin($part["data"],$endian); break;
 				case "hex": $part["obj"]=$unitname::fromHex($part["data"],$endian); break;
 				case "int": $part["obj"]=$unitname::fromInt($part["data"],$endian); break;
-				case "string": $part["obj"]=$unitname::fromString($part["data"],1); break; //strings are always big-endian, they're mapped 1:1 into the file
+				case "string": $part["obj"]=$unitname::fromString($part["data"],1,true); $part["act_len"]=strlen($part["data"]); break;
 			}
 			$part["bytes"]=$part["obj"]->toArray(1);
 			unset($part["obj"]); //no need to waste more memory than we already do
