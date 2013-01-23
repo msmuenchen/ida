@@ -84,15 +84,24 @@ switch($pass) {
 	break;
 	case 5:
 		log_msg("Compile");
+		$origfile=$workdir.$finfo["filename"].".exe";
 		$asmfile=$workdir.$finfo["filename"].".asm";
 		$outfile=$workdir.$finfo["filename"]."_compiled.bin";
-		log_msg("Using ASM file %s and outfile %s",$asmfile,$outfile);
+		$nasmfile=$workdir.$finfo["filename"]."_nasm.bin";
+		log_msg("Using ASM file %s, building into IDA %s, NASM %s and original %s",$asmfile,$outfile,$nasmfile,$origfile);
 		$asm=ASM::createFromFile($asmfile);
 		$asm->compile($outfile);
-		$md5_outfile=md5_file($outfile);
-		log_msg("MD5 of original file was %s, new file is %s",$asm->bin_md5,$md5_outfile);
 		$asm->destroy();
 		unset($asm);
+		
+		//MD5 verification
+		$nasmcmd="nasm -f bin -o $nasmfile $asmfile";
+		log_msg("Running %s",$nasmcmd);
+		exec($nasmcmd);
+		$md5_outfile=md5_file($outfile);
+		$md5_nasmfile=md5_file($nasmfile);
+		$md5_orig=md5_file($origfile);
+		log_msg("MD5s:\nOrig\t\t%s\nIDA\t\t%s\nNASM\t\t%s",$md5_orig,$md5_outfile,$md5_nasmfile);
 	break;
 	default:
 		err_out("Invalid pass %d",$pass);
