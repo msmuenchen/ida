@@ -71,7 +71,7 @@ abstract class DATAUNIT_MB {
 		//wrap in the format fromHex expects
 		return static::fromHex("0".dechex(intval($str))."h",$endian);
 	}
-	public	function toInt($endian=0) {
+	public function toInt($endian=0) {
 		//I know, this is strange. The point is that the math stuff down below needs it reversed...
 		if($endian==0) {
 			$bytes=$this->bytes;
@@ -172,7 +172,9 @@ abstract class DATAUNIT_MB {
 			$bytes=$this->bytes;
 		return $bytes;
 	}
-	public static function fromArray($str) {
+	//supply a big-endian array of bytes
+	public static function fromArray($bytes) {
+		return static::getInst($bytes);
 	}
 }
 

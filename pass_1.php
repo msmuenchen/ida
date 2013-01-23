@@ -19,7 +19,7 @@ $asm->setMeta($infile,md5_file($infile),filesize($infile));
 for($pos=0;$pos<$insize;$pos++) {
 	$byte=ord(fgetc($in));
 	//create DB instruction
-	$inst=new Instr_generic_db($byte);
+	$inst=Instr_generic_data::fromBinary($byte);
 	$inst->setFpos($pos);
 	$asm->appendInstruction($inst);
 }
