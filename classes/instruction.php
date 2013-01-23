@@ -25,6 +25,9 @@ abstract class Instruction {
 	//Key in the ASM instructions array
 	protected $index=-1;
 	
+	//Key in the ASM codeInstructions array
+	protected $codeIndex=-1;
+	
 	//Endianness (this is important for the getASM() and compile functions. Default little endian
 	protected $endian=0;
 	
@@ -152,5 +155,15 @@ abstract class Instruction {
 	//set the index of this instruction in the parent's Instruction array
 	public function setIndex($index) {
 		$this->index=$index;
+	}
+	//set the index of this instruction in the parent's codeInstruction array
+	public function setCodeIndex($index) {
+		$this->codeIndex=$index;
+	}
+	public function getIndex() {
+		return $this->index;
+	}
+	public function getCodeIndex() {
+		return $this->codeIndex;
 	}
 }
