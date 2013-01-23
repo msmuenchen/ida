@@ -4,7 +4,7 @@
 /* ASM class abstracting a ASM file */
 class ASM {
 	//All instructions (it is assumed that each line is one instruction)
-	private $instructions=array();
+	public $instructions=array();
 	//All non-comment and non-blank instructions - entries are refs to entries of ASM->instructions
 	private $codeInstructions=array();
 	//For each byte, this array gives a ref to the instruction that creates it
