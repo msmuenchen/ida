@@ -33,7 +33,7 @@ abstract class Instruction {
 	
 	//return the line which will be written to ASM file
 	public function toString() {
-		return sprintf("%-40s ; %s || %s",$this->getASM(),$this->commentstr,$this->getMetaString());
+		return sprintf("%-40s ; %s || ID %d CID %d %s",$this->getASM(),$this->commentstr,$this->index,$this->codeIndex,$this->getMetaString());
 	}
 	//return the textual (nasm) abstraction of the Instruction
 	public abstract function getASM();
