@@ -86,7 +86,7 @@ class Instr_generic_data extends Instruction {
 			$data=substr($data,1);
 //			log_msg("Parsing character %s from position %d, element is %d and mode is %d",$char,$pos,$el,$mode);
 			switch($char) {
-				case "\"": //start a new string
+				case "`": //start a new string
 					if($mode==0) {
 //						log_msg("Encountered a string begin");
 						$parts[$el]["data"]="";
