@@ -1,1 +1,1 @@
-set PATH=%PATH%;c:\php-sdk\php53dev\vc9\x86\php-5.3.6\Release_TS\;c:\Program Files (x86)\nasm\;
+set PATH=%PATH%;C:\php-sdk\php53dev\vc9\x64\php-5.4.11\Release_TS;c:\Program Files (x86)\nasm\;
