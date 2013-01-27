@@ -8,8 +8,10 @@ class Instr_generic_data extends Instruction {
 	
 	//this stores the basic unit type (byte, word, dword, (qword))
 	protected $width=0;
-	
+	protected static $c=0;
+	protected $i=0;
 	function __construct($vals,$parts,$width,$endian) {
+		$this->i=++static::$c;
 		$this->endian=$endian;
 		$this->opcode=$vals;
 		$this->parts=$parts;
@@ -53,7 +55,7 @@ class Instr_generic_data extends Instruction {
 					break;
 			}
 		}
-		$str=$inst.implode(",",$strarray);
+		$str=$inst.implode(",",$strarray)." ; ".$this->i;
 		return $str;
 	}
 	
