@@ -275,6 +275,14 @@ class Instr_generic_data extends Instruction {
 			err_out("Can't change an oversized string to anything else, undefine the instruction!");
 		if(array_search($format,array("int","string","hex","oct","bin"))===false)
 			err_out("invalid format %s",$format);
+		
+		//d(q/d/w) "fooo" is not valid, must be db
+		if($format=="string" && $this->width!=1) {
+			$this->parts[$partid]["act_len"]=ceil(sizeof($part["bytes"])/$this->width)*$this->width;
+			if($this->parts[$partid]["act_len"]!=sizeof($part["bytes"]))
+				err_out("Invalid lengths!");
+			$this->width=1;
+		}
 		$this->parts[$partid]["type"]=$format;
 	}
 	
