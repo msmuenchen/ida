@@ -55,38 +55,40 @@ class FileType_PE_EXE extends FileType {
 		//this is the MZ sig
 		$this->asmfile->getInstructionFromFileOffset(0)->upscale();
 		$this->asmfile->getInstructionFromFileOffset(0)->changeFormat(0,"string");
+		$this->asmfile->getInstructionFromFileOffset(0)->setComment("mz.magic");
 		
 		//this is the PE header offset, DWORD
 		$this->asmfile->getInstructionFromFileOffset(0x3C)->upscale();
 		$this->asmfile->getInstructionFromFileOffset(0x3C)->upscale();
 		$this->asmfile->getInstructionFromFileOffset(0x3C)->changeFormat(0,"hex");
 		$pe_sig=$this->asmfile->getInstructionFromFileOffset(0x3C)->getRawValue(0);
+		$this->asmfile->getInstructionFromFileOffset(0x3C)->setComment("mz.e_lfanew");
 		log_msg("PE sig at 0x%08X",$pe_sig);
-		
+				
 		//PE header
 		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->upscale();
 		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->upscale();
-//		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->changeFormat(0,"string");
+		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->changeFormat(0,"string");
 		$this->asmfile->getInstructionFromFileOffset($pe_sig+0)->setComment("pe.magic");
 		$pe_base=$pe_sig+4;
 		
 		//PE struct
 		//Machine, WORD
 		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->upscale();
-//		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->changeFormat(0,"hex");
+		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->changeFormat(0,"hex");
 		$pedata["machine"]=$this->asmfile->getInstructionFromFileOffset($pe_base+0)->getRawValue(0);
 		if(!isset(self::$pe_machines[$pedata["machine"]]))
 			$pedata["machine"]=0; //unknown
 		$this->asmfile->getInstructionFromFileOffset($pe_base+0)->setComment("pe.machine = %x (%s)",$pedata["machine"],self::$pe_machines[$pedata["machine"]]);
 		//NumberOfSections, WORD
 		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->upscale();
-//		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->changeFormat(0,"hex");
+		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->changeFormat(0,"hex");
 		$val=$this->asmfile->getInstructionFromFileOffset($pe_base+2)->getRawValue(0);
 		$this->asmfile->getInstructionFromFileOffset($pe_base+2)->setComment("pe.numberofsections = %d",$val);
 		//TimeDateStamp, DWORD
 		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->upscale();
 		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->upscale();
-//		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->changeFormat(0,"int");
+		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->changeFormat(0,"int");
 		$val=$this->asmfile->getInstructionFromFileOffset($pe_base+4)->getRawValue(0);
 		$this->asmfile->getInstructionFromFileOffset($pe_base+4)->setComment("pe.timedatestamp = %d",$val);
 		
