@@ -89,7 +89,7 @@ abstract class DATAUNIT_MB {
 		return $str;
 	}
 	public function toString($endian,$useAllBytes=false,$assumeOversizeLength=-1) {
-		return "\"".$this->toRawString($endian,$useAllBytes,$assumeOversizeLength)."\"";
+		return "`".$this->toRawString($endian,$useAllBytes,$assumeOversizeLength)."`";
 	}
 	
 	public static function fromInt($str,$endian=0) {
